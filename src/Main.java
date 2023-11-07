@@ -1,17 +1,53 @@
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
-public class Main {
-    public static void main(String[] args) {
-        // Press Alt+Enter with your caret at the highlighted text to see how
-        // IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+import java.io.File;
+import java.io.FileWriter;
+import java.util.concurrent.TimeUnit;
 
-        // Press Shift+F10 or click the green arrow button in the gutter to run the code.
-        for (int i = 1; i <= 5; i++) {
+import static java.lang.Thread.sleep;
 
-            // Press Shift+F9 to start debugging your code. We have set one breakpoint
-            // for you, but you can always add more by pressing Ctrl+F8.
-            System.out.println("i = " + i);
+class MyThread extends Thread{
+    static int count = 0;
+    public void run(){
+        String path = "";
+        count++;
+        File folder = new File("test"+count);
+        if (!folder.exists()){
+            folder.mkdir();
+            path+=folder.getAbsolutePath();
+            for (var i=1; i<=20; i++){
+                File file = new File(path+"\\Test"+ i + ".txt");
+                StringBuilder strbuilder= new StringBuilder();
+                try (FileWriter writer = new FileWriter(file)) {
+                    for (var j = 1; j<=1_000_000; j++){
+                        strbuilder.append(j+"\n");
+                    }
+                    writer.write(strbuilder.toString());
+                   // System.out.println(path);
+                } catch (Exception e) {
+                    e.getMessage();
+                }
+            }
+
+        }else {
+            System.out.println("Файл уже создан!");
         }
+    }
+
+}
+public class Main {
+    public static void main(String[] args) throws InterruptedException {
+        System.out.println("Начало создания файлов...");
+
+        long startTime = System.nanoTime();
+        for (var i = 0; i<20;i++){
+            MyThread thread = new MyThread();
+            thread.start();
+            thread.join();
+        }
+
+        long endTime = System.nanoTime();
+        long timeElapsed = endTime - startTime;
+        System.out.println("Файлы созданы.\n" +
+                "Общее время выполнения:  "
+                +TimeUnit.NANOSECONDS.toSeconds(timeElapsed) + "сек.");
     }
 }
